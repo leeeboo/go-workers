@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	RETRY_KEY          = "goretry"
+	RETRY_KEY          = "retry"
 	SCHEDULED_JOBS_KEY = "schedule"
 )
 
