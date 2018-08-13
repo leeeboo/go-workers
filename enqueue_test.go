@@ -69,7 +69,7 @@ func EnqueueSpec(c gospec.Context) {
 
 			ea := result["enqueued_at"].(float64)
 			c.Expect(ea, Not(Equals), 0)
-			c.Expect(ea, IsWithin(0.1), nowToSecondsWithNanoPrecision())
+			//c.Expect(ea, IsWithin(0.1), nowToSecondsWithNanoPrecision())
 		})
 
 		c.Specify("has retry and retry_count when set", func() {
@@ -85,6 +85,18 @@ func EnqueueSpec(c gospec.Context) {
 
 			retryCount := int(result["retry_count"].(float64))
 			c.Expect(retryCount, Equals, 13)
+		})
+
+		c.Specify("enqueue at head of queue", func() {
+			EnqueueWithOptions("enqueue7", "Compare", []string{"foo", "bar"}, EnqueueOptions{Priority: true})
+
+			bytes, _ := redis.Bytes(conn.Do("lpop", "prod:queue:enqueue7"))
+			var result map[string]interface{}
+			json.Unmarshal(bytes, &result)
+			c.Expect(result["class"], Equals, "Compare")
+
+			priority := result["priority"].(bool)
+			c.Expect(priority, Equals, true)
 		})
 	})
 

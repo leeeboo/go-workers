@@ -1,7 +1,8 @@
 package workers
 
 import (
-	"fmt"
+	"reflect"
+	"runtime"
 	"sync"
 	"time"
 
@@ -36,6 +37,10 @@ func (m *customMid) Trace() []string {
 	return t
 }
 
+func getFunctionName(i interface{}) string {
+	return runtime.FuncForPC(reflect.ValueOf(i).Pointer()).Name()
+}
+
 func ManagerSpec(c gospec.Context) {
 	processed := make(chan *Args)
 
@@ -54,7 +59,7 @@ func ManagerSpec(c gospec.Context) {
 
 		c.Specify("sets job function", func() {
 			manager := newManager("myqueue", testJob, 10)
-			c.Expect(fmt.Sprint(manager.job), Equals, fmt.Sprint(testJob))
+			c.Expect(getFunctionName(manager.job), Equals, getFunctionName(testJob))
 		})
 
 		c.Specify("sets worker concurrency", func() {
