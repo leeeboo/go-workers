@@ -25,6 +25,7 @@ type EnqueueOptions struct {
 	RetryCount int     `json:"retry_count,omitempty"`
 	Retry      bool    `json:"retry,omitempty"`
 	At         float64 `json:"at,omitempty"`
+	Priority   bool    `json:"priority,omitempty"`
 }
 
 func generateJid() string {
@@ -78,7 +79,16 @@ func EnqueueWithOptions(queue, class string, args interface{}, opts EnqueueOptio
 		return "", err
 	}
 	queue = Config.Namespace + "queue:" + queue
-	_, err = conn.Do("rpush", queue, bytes)
+
+	var redisCommand string
+
+	if opts.Priority {
+		redisCommand = "rpush"
+	} else {
+		redisCommand = "lpush"
+	}
+
+	_, err = conn.Do(redisCommand, queue, bytes)
 	if err != nil {
 		return "", err
 	}
