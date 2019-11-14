@@ -23,7 +23,7 @@ var access sync.Mutex
 var started bool
 
 var Middleware = NewMiddleware(
-	&MiddlewareLogging{},
+	//&MiddlewareLogging{},
 	&MiddlewareRetry{},
 	&MiddlewareStats{},
 )
